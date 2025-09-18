@@ -13,8 +13,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { BarChart3, Users, TrendingUp, Activity, Settings, LogOut, User, Bell, Search, Menu } from "lucide-react"
+import { useClerk } from '@clerk/nextjs'
 
 export function Dashboard() {
+  const { signOut } = useClerk()
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   const stats = [
@@ -109,7 +111,7 @@ export function Dashboard() {
                 <DropdownMenuSeparator />
                 <DropdownMenuItem className="cursor-pointer text-destructive">
                   <LogOut className="mr-2 h-4 w-4" />
-                  <span>Cerrar Sesión</span>
+                  <button onClick={() => signOut({ redirectUrl: '/' })}>Cerrar sesión</button>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
