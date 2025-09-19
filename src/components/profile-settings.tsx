@@ -6,23 +6,35 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Camera, User, Mail, Phone, Lock, Globe, Moon, Sun, Bell } from "lucide-react"
+import { useUser } from "@clerk/nextjs"
 import { useTheme } from "next-themes"
+import UpdateAvatar from "./update-avatar"
 
 export function ProfileSettings() {
+  const { user, isLoaded } = useUser()
   const { resolvedTheme, setTheme } = useTheme();        // usa resolvedTheme
-  const [mounted, setMounted] = useState(false); 
+  const [mounted, setMounted] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [notifications, setNotifications] = useState(true)
   const [formData, setFormData] = useState({
-    fullName: "Juan Pérez",
-    email: "juan.perez@email.com",
-    username: "juanperez",
-    phone: "+34 123 456 789",
+    firstName: 'Sin asignar',
+    lastName: 'sin asignar',
+    email: 'sin asignar',
+    phone: "Sin asignar",
     language: "es",
   })
-
+  
+  useEffect(() => {
+    if (!isLoaded || !user) return
+    setFormData({
+      firstName: user.firstName ?? "Sin asignar",
+      lastName: user.lastName ?? "Sin asignar",
+      email: user.primaryEmailAddress?.emailAddress ?? "Sin asignar",
+      phone: user.primaryPhoneNumber?.phoneNumber ?? "Sin asignar",
+      language: "es",
+    })
+  }, [isLoaded, user])
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -49,6 +61,7 @@ export function ProfileSettings() {
 
   }
 
+
   return (
     <div className="min-h-screen bg-background">
       <div className="border-b border-border/50">
@@ -62,31 +75,9 @@ export function ProfileSettings() {
         <div className="grid gap-12 md:grid-cols-1 lg:grid-cols-3">
           <div className="lg:col-span-1">
             <div className="space-y-6">
-              <div>
-                <h2 className="text-lg font-medium text-foreground mb-2">Foto de Perfil</h2>
-                <p className="text-sm text-muted-foreground font-light">Actualiza tu imagen</p>
-              </div>
+              <UpdateAvatar />
 
-              <div className="flex flex-col items-center space-y-6">
-                <div className="relative">
-                  <Avatar className="w-28 h-28 border border-border/50">
-                    <AvatarImage src="/professional-profile.png" alt="Foto de perfil" />
-                    <AvatarFallback className="text-xl font-light bg-muted">JP</AvatarFallback>
-                  </Avatar>
-                  <Button
-                    size="sm"
-                    className="absolute -bottom-1 -right-1 rounded-full w-9 h-9 p-0 bg-foreground hover:bg-foreground/90 shadow-none border-2 border-background"
-                  >
-                    <Camera className="w-4 h-4" />
-                  </Button>
-                </div>
-                <Button
-                  variant="outline"
-                  className="px-6 py-2 rounded-lg border-border hover:bg-muted/50 font-light bg-transparent"
-                >
-                  Cambiar Imagen
-                </Button>
-              </div>
+
             </div>
           </div>
 
@@ -104,11 +95,12 @@ export function ProfileSettings() {
                 <div className="grid gap-6 md:grid-cols-2">
                   <div className="space-y-2">
                     <Label htmlFor="fullName" className="text-sm font-medium text-foreground">
-                      Nombre Completo
+                      Nombre(s)
                     </Label>
                     <Input
+                      readOnly
                       id="fullName"
-                      value={formData.fullName}
+                      value={formData.firstName}
                       onChange={(e) => handleInputChange("fullName", e.target.value)}
                       className="h-12 rounded-lg border-border/50 bg-background focus:border-foreground/20 font-light"
                       placeholder="Ingresa tu nombre completo"
@@ -116,11 +108,12 @@ export function ProfileSettings() {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="username" className="text-sm font-medium text-foreground">
-                      Nombre de Usuario
+                      Apellidos
                     </Label>
                     <Input
+                      readOnly
                       id="username"
-                      value={formData.username}
+                      value={formData.lastName}
                       onChange={(e) => handleInputChange("username", e.target.value)}
                       className="h-12 rounded-lg border-border/50 bg-background focus:border-foreground/20 font-light"
                       placeholder="Ingresa tu nombre de usuario"
@@ -135,6 +128,7 @@ export function ProfileSettings() {
                       Correo Electrónico
                     </Label>
                     <Input
+                      readOnly
                       id="email"
                       type="email"
                       value={formData.email}
@@ -149,6 +143,7 @@ export function ProfileSettings() {
                       Número de Teléfono
                     </Label>
                     <Input
+                      readOnly
                       id="phone"
                       value={formData.phone}
                       onChange={(e) => handleInputChange("phone", e.target.value)}

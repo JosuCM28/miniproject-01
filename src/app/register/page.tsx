@@ -14,11 +14,13 @@ export default function RegisterPage() {
   const [cooldown, setCooldown] = useState(0)
   const [step, setStep] = useState<"register" | "verify">("register")
 
-  const handleRegister = async (values: { name: string, email: string; password: string; }) => {
+  const handleRegister = async (values: { firstName: string, lastName: string, email: string; password: string; }) => {
     if (!isLoaded) return
     setEmail(values.email)
 
     await signUp.create({
+      firstName: values.firstName,
+      lastName: values.lastName,
       emailAddress: values.email,
       password: values.password,
     })
